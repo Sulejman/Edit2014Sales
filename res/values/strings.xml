@@ -3,6 +3,9 @@
 
     <string name="app_name">Edit2014Sales</string>
     <string name="hello_world">Hello world!</string>
-    <string name="textProbni">Probni Element!</string>
+    <string name="textProbniDodaj">Probni Element Dodaj!</string>
+    <string name="textProbniLista">Probni Element Lista!</string>
+    <string name="textProbniKasa">Probni Element Kasa!</string>
+    <string name="title_activity_collection">CollectionActivity</string>
 
 </resources>
