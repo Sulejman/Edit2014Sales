@@ -1,9 +1,12 @@
 package com.comtrade.edit2014sales;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,8 +18,7 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
+import android.widget.SimpleAdapter;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class MainActivity extends FragmentActivity implements ActionBar.TabListener {
@@ -93,10 +95,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one of the primary
-     * sections of the app.
-     */
     public static class AppSectionsPagerAdapter extends FragmentPagerAdapter {
 
         public AppSectionsPagerAdapter(FragmentManager fm) {
@@ -136,9 +134,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         }
     }
 
-    /**
-     * A fragment that launches other parts of the demo application.
-     */
+
     public static class DodajSectionFragment extends Fragment {
 
         @Override
@@ -149,22 +145,78 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         }
     }
 
-    /**
-     * A dummy fragment representing a section of the app, but that simply displays dummy text.
-     */
+
     public static class ListaSectionFragment extends ListFragment {
 
         public static final String ARG_SECTION_NUMBER = "section_number";
+        
+        
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_lista, container, false);
+            /*View rootView = inflater.inflate(R.layout.fragment_lista, container, false);
             String[] values = new String[] { "Kafa", "So", "Šećer", "Igračka", "Čokolada" };
+            int[] images = new int[]{
+                    R.drawable.item,R.drawable.item,R.drawable.item,R.drawable.item,R.drawable.item
+                };
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                    android.R.layout.simple_list_item_1, values);
+                    R.layout.list_item, values);
                 setListAdapter(adapter);
-            return rootView;
+            return rootView;*/
+        	
+        	// Each row in the list stores country name, currency and flag
+        	
+        	String[] title = new String[] { 
+            		"Kafa", 
+            		"So", 
+            		"Šećer", 
+            		"Igračka", 
+            		"Čokolada" 
+            		};
+            
+            int[] images = new int[]{
+                    R.drawable.item,
+                    R.drawable.item,
+                    R.drawable.item,
+                    R.drawable.item,
+                    R.drawable.item
+                };
+            
+            String[] subtitle = new String[]{
+                    "Kafa brazil",
+                    "Jodirana so",
+                    "Kocka za kafu",
+                    "Kineska igračka",
+                    "Za počastiti raju"
+                };
+        	
+            List<HashMap<String,String>> aList = new ArrayList<HashMap<String,String>>();
+            
+            
+            
+            for(int i=0;i<5;i++){
+                HashMap<String, String> hm = new HashMap<String,String>();
+                hm.put("artikal", "Artikal : " + title[i]);
+                hm.put("opis","Opis : " + subtitle[i]);
+                hm.put("slika", Integer.toString(images[i]) );
+                aList.add(hm);
+            }
+     
+            // Keys used in Hashmap
+            String[] from = { "slika","artikal","opis" };
+     
+            // Ids of views in listview_layout
+            int[] to = { R.id.image,R.id.title,R.id.subtitle};
+     
+            // Instantiating an adapter to store each items
+            // R.layout.listview_layout defines the layout of each item
+            SimpleAdapter adapter = new SimpleAdapter(getActivity().getBaseContext(), aList, R.layout.list_item, from, to);
+     
+            setListAdapter(adapter);
+     
+            return super.onCreateView(inflater, container, savedInstanceState);
+        	
         }
     }
     
