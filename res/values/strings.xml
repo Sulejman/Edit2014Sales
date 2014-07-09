@@ -7,5 +7,10 @@
     <string name="textProbniLista">Probni Element Lista!</string>
     <string name="textProbniKasa">Probni Element Kasa!</string>
     <string name="title_activity_collection">CollectionActivity</string>
-
+    <string name="barkod">Barcode:</string>
+    <string name="naziv">Naziv:</string>
+    <string name="cijena">Cijena:</string>
+	<string name="opis">Opis:</string>
+    <string name="btn_dodaj">Dodaj:</string>
+    
 </resources>

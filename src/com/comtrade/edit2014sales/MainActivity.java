@@ -1,6 +1,5 @@
 package com.comtrade.edit2014sales;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,10 +14,16 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
+import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class MainActivity extends FragmentActivity implements ActionBar.TabListener {
@@ -94,7 +99,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
-
+    
     public static class AppSectionsPagerAdapter extends FragmentPagerAdapter {
 
         public AppSectionsPagerAdapter(FragmentManager fm) {
@@ -135,86 +140,77 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     }
 
 
-    public static class DodajSectionFragment extends Fragment {
-
-        @Override
+    public static class DodajSectionFragment extends Fragment implements View.OnClickListener {
+    	
+    	Button dodaj;
+    	EditText naziv;
+    	EditText barkod;
+    	EditText cijena;
+    	EditText opis;
+    	Artikal artikal;
+    	ArtikalDAO dao;
+    	
+    	@Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
+    		if (container == null) {
+    	        return null;
+    	    }
+            artikal = new Artikal();
+            dao = new ArtikalDAO(getActivity().getApplicationContext());
+            dao.open();
             View rootView = inflater.inflate(R.layout.fragment_dodaj, container, false);
+            dodaj = (Button)rootView.findViewById(R.id.buttonDodaj);
+            naziv = (EditText)rootView.findViewById(R.id.naziv);
+            barkod = (EditText)rootView.findViewById(R.id.barkod);
+            barkod.setInputType(InputType.TYPE_CLASS_NUMBER);
+            cijena = (EditText)rootView.findViewById(R.id.cijena);
+            cijena.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            opis = (EditText)rootView.findViewById(R.id.opis);
+			dodaj.setOnClickListener(this);
             return rootView;
         }
+
+		@Override
+		public void onClick(View arg0) {
+			// TODO Auto-generated method stub
+			
+			artikal.setNaziv(naziv.getText().toString());
+			artikal.setCijena(Float.parseFloat(cijena.getText().toString()));
+			artikal.setBarkod(Integer.parseInt(barkod.getText().toString()));
+			artikal.setOpis(opis.getText().toString());
+			
+			Log.d("CIJENA:", String.valueOf(artikal.getCijena()));
+			Log.d("BARKOD:", String.valueOf(artikal.getBarkod()));
+			Log.d("NAZIV:",artikal.getNaziv());
+			Log.d("OPIS:",artikal.getOpis());
+			
+			dao.addArtikal(artikal);
+
+			Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Artikal " 
+					+ artikal.getNaziv() + " dodan", Toast.LENGTH_SHORT);
+			
+			toast.show();
+			
+		}
     }
 
 
     public static class ListaSectionFragment extends ListFragment {
 
-        public static final String ARG_SECTION_NUMBER = "section_number";
-        
-        
-
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            /*View rootView = inflater.inflate(R.layout.fragment_lista, container, false);
-            String[] values = new String[] { "Kafa", "So", "Šećer", "Igračka", "Čokolada" };
-            int[] images = new int[]{
-                    R.drawable.item,R.drawable.item,R.drawable.item,R.drawable.item,R.drawable.item
-                };
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                    R.layout.list_item, values);
-                setListAdapter(adapter);
-            return rootView;*/
         	
-        	// Each row in the list stores country name, currency and flag
+        	/*ArtikalDAO DAO = new ArtikalDAO(getActivity().getApplicationContext());
         	
-        	String[] title = new String[] { 
-            		"Kafa", 
-            		"So", 
-            		"Šećer", 
-            		"Igračka", 
-            		"Čokolada" 
-            		};
-            
-            int[] images = new int[]{
-                    R.drawable.item,
-                    R.drawable.item,
-                    R.drawable.item,
-                    R.drawable.item,
-                    R.drawable.item
-                };
-            
-            String[] subtitle = new String[]{
-                    "Kafa brazil",
-                    "Jodirana so",
-                    "Kocka za kafu",
-                    "Kineska igračka",
-                    "Za počastiti raju"
-                };
-        	
-            List<HashMap<String,String>> aList = new ArrayList<HashMap<String,String>>();
-            
-            
-            
-            for(int i=0;i<5;i++){
-                HashMap<String, String> hm = new HashMap<String,String>();
-                hm.put("artikal", "Artikal : " + title[i]);
-                hm.put("opis","Opis : " + subtitle[i]);
-                hm.put("slika", Integer.toString(images[i]) );
-                aList.add(hm);
-            }
+            List<HashMap<String,String>> aList = DAO.getAllArtikal();
      
-            // Keys used in Hashmap
-            String[] from = { "slika","artikal","opis" };
-     
-            // Ids of views in listview_layout
-            int[] to = { R.id.image,R.id.title,R.id.subtitle};
-     
-            // Instantiating an adapter to store each items
-            // R.layout.listview_layout defines the layout of each item
+            String[] from = { "naziv","opis","barkod","cijena" };
+            int[] to = { R.id.naziv,R.id.opis,R.id.barkod, R.id.cijena};
             SimpleAdapter adapter = new SimpleAdapter(getActivity().getBaseContext(), aList, R.layout.list_item, from, to);
-     
             setListAdapter(adapter);
-     
+     */
             return super.onCreateView(inflater, container, savedInstanceState);
         	
         }
