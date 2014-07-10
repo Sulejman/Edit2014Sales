@@ -1,11 +1,14 @@
 package com.comtrade.edit2014sales;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,9 +23,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -70,7 +76,15 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                 // When swiping between different app sections, select the corresponding tab.
                 // We can also use ActionBar.Tab#select() to do this if we have a reference to the
                 // Tab.
+            	if(position==1){
+	            	ListaFragmentInterface fragment = (ListaFragmentInterface)
+	                		mAppSectionsPagerAdapter.instantiateItem(mViewPager, position);
+	                if (fragment != null) {
+	                    fragment.fragmentBecameVisible();
+	                } 
+            	}
                 actionBar.setSelectedNavigationItem(position);
+                
             }
         });
 
@@ -140,7 +154,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     }
 
 
-    public static class DodajSectionFragment extends Fragment implements View.OnClickListener {
+    public static class DodajSectionFragment extends Fragment 
+    					implements View.OnClickListener {
     	
     	Button dodaj;
     	EditText naziv;
@@ -180,11 +195,11 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 			artikal.setBarkod(Integer.parseInt(barkod.getText().toString()));
 			artikal.setOpis(opis.getText().toString());
 			
-			Log.d("CIJENA:", String.valueOf(artikal.getCijena()));
+			/*Log.d("CIJENA:", String.valueOf(artikal.getCijena()));
 			Log.d("BARKOD:", String.valueOf(artikal.getBarkod()));
 			Log.d("NAZIV:",artikal.getNaziv());
 			Log.d("OPIS:",artikal.getOpis());
-			
+			*/
 			dao.addArtikal(artikal);
 
 			Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Artikal " 
@@ -193,26 +208,110 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 			toast.show();
 			
 		}
+
+    }
+    
+    public static class CustomAdapter extends BaseAdapter {
+    	
+        Context context;
+        List<Artikal> artikli;
+
+        CustomAdapter(Context context, List<Artikal> artikli) {
+            this.context = context;
+            this.artikli = artikli;
+
+        }
+
+        @Override
+        public int getCount() {
+
+            return artikli.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+
+            return artikli.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+
+            return artikli.indexOf(getItem(position));
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            if (convertView == null) {
+                LayoutInflater mInflater = (LayoutInflater) context
+                        .getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+                convertView = mInflater.inflate(R.layout.list_item, null);
+            }
+
+            TextView txtNaziv = (TextView) convertView.findViewById(R.id.txt_naziv);
+            TextView txtBarkod = (TextView) convertView.findViewById(R.id.txt_barkod);
+            TextView txtCijena = (TextView) convertView.findViewById(R.id.txt_cijena);
+            TextView txtOpis = (TextView) convertView.findViewById(R.id.txt_opis);
+            //ImageView imgIcon = (ImageView) convertView.findViewById(R.id.icon);
+            
+            Artikal artikal_pos = artikli.get(position);
+            // setting the image resource and title
+            //imgIcon.setImageResource(artikal_pos.getIcon());
+            txtNaziv.setText(artikal_pos.getNaziv());
+            txtCijena.setText(String.valueOf(artikal_pos.getCijena()));
+            txtBarkod.setText(String.valueOf(artikal_pos.getBarkod()));
+            txtOpis.setText(artikal_pos.getOpis());
+            
+            return convertView;
+
+        }
+
     }
 
 
-    public static class ListaSectionFragment extends ListFragment {
+    public static class ListaSectionFragment extends ListFragment implements ListaFragmentInterface {
+    	
+    	CustomAdapter adapter;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
         	
-        	/*ArtikalDAO DAO = new ArtikalDAO(getActivity().getApplicationContext());
+        	//List<HashMap<String,String>> aList = new ArrayList<HashMap<String,String>>();
         	
-            List<HashMap<String,String>> aList = DAO.getAllArtikal();
      
-            String[] from = { "naziv","opis","barkod","cijena" };
-            int[] to = { R.id.naziv,R.id.opis,R.id.barkod, R.id.cijena};
-            SimpleAdapter adapter = new SimpleAdapter(getActivity().getBaseContext(), aList, R.layout.list_item, from, to);
-            setListAdapter(adapter);
-     */
+            //String[] from = { "naziv","opis","barkod","cijena" };
+            //int[] to = { R.id.naziv,R.id.opis,R.id.barkod, R.id.cijena};
+            //SimpleAdapter adapter = new SimpleAdapter(getActivity().getBaseContext(), aList, R.layout.list_item, from, to);
+            //setListAdapter(adapter);
+     
             return super.onCreateView(inflater, container, savedInstanceState);
         	
+        }
+        
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+        	super.onActivityCreated(savedInstanceState);
+        	ArtikalDAO DAO = new ArtikalDAO(getActivity().getApplicationContext());
+        	DAO.open();
+        	
+            List<Artikal> artikli = DAO.getAllArtikal();
+            adapter = new CustomAdapter(getActivity(), artikli);
+            setListAdapter(adapter);
+            adapter.notifyDataSetChanged();
+        	
+        }
+        
+        @Override
+        public void fragmentBecameVisible() {
+        	ArtikalDAO DAO = new ArtikalDAO(getActivity().getApplicationContext());
+        	DAO.open();
+        	
+            List<Artikal> artikli = DAO.getAllArtikal();
+            adapter = new CustomAdapter(getActivity(), artikli);
+            setListAdapter(adapter);
+            adapter.notifyDataSetChanged();
         }
     }
     

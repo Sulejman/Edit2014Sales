@@ -5,7 +5,7 @@
     android:orientation="horizontal" >
  
     <ImageView
-        android:id="@+id/image"
+        android:id="@+id/txt_slika"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/hello_world"
@@ -20,25 +20,25 @@
         android:orientation="vertical" >
  
         <TextView
-            android:id="@+id/naziv"
+            android:id="@+id/txt_naziv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="15dp" />
  
         <TextView
-            android:id="@+id/opis"
+            android:id="@+id/txt_opis"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="10dp" />
         
         <TextView
-            android:id="@+id/barkod"
+            android:id="@+id/txt_barkod"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="10dp" />
         
         <TextView
-            android:id="@+id/cijena"
+            android:id="@+id/txt_cijena"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="10dp" />

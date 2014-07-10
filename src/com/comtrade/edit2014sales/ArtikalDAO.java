@@ -39,11 +39,11 @@ public class ArtikalDAO {
 		values.put(DatabaseHelper.KEY_OPIS, artikal.getOpis());
 		values.put(DatabaseHelper.KEY_CIJENA, artikal.getCijena());
 		
-		//long artiklId = database.insert(DatabaseHelper.TABLE_ARTIKLI, null, values);
+		long artiklId = database.insert(DatabaseHelper.TABLE_ARTIKLI, null, values);
 
 		// now that the student is created return it ...
 		Cursor cursor = database.query(DatabaseHelper.TABLE_ARTIKLI,
-				ARTIKAL_TABLE_COLUMNS,null, null, null, null, null);
+				ARTIKAL_TABLE_COLUMNS,"id = " + artiklId, null, null, null, null);
 		
 		/*Log.d("CIJENA:", String.valueOf(artikal.getCijena()));
 		Log.d("BARKOD:", String.valueOf(artikal.getBarkod()));
@@ -59,10 +59,10 @@ public class ArtikalDAO {
 		catch(SQLiteException e){
 			
 		}*/
-		if(cursor.getCount() >= 1){
+		
 			cursor.moveToFirst();
 
-			}
+			
 		
 		
 		
@@ -78,20 +78,29 @@ public class ArtikalDAO {
 				+ " = " + id, null);
 	}
 
-	public List getAllArtikal() {
-		List<HashMap<String,String>> artikli = new ArrayList<HashMap<String,String>>();
-
-		Cursor cursor = database.query(DatabaseHelper.TABLE_ARTIKLI,
-				ARTIKAL_TABLE_COLUMNS, null, null, null, null, null);
-
+	public List getAllArtikal() throws SQLException {
+		//List<HashMap<String,String>> artikli = new ArrayList<HashMap<String,String>>();
+		List<Artikal> artikli = new ArrayList();
+		//Cursor cursor = database.query(DatabaseHelper.TABLE_ARTIKLI,ARTIKAL_TABLE_COLUMNS, null, null, null, null, null);
+		Cursor  cursor = database.rawQuery("select * from artikli",null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
-			HashMap<String, String> hm = new HashMap<String,String>();
+			/*HashMap<String, String> hm = new HashMap<String,String>();
 			Artikal artikal = parseArtikal(cursor);
 			hm.put("naziv","Naziv: " + artikal.getNaziv());
 			hm.put("opis","Opis: " + artikal.getOpis());
 			hm.put("barkod","Barcode: " + String.valueOf(artikal.getBarkod()));
-			hm.put("cijena","Cijena: " + String.valueOf(artikal.getCijena()) + " KM");
+			hm.put("cijena","Cijena: " + String.valueOf(artikal.getCijena()) + " KM");*/
+			Artikal artikal = new Artikal();
+	           // Take values from the DB
+	           artikal.setId(cursor.getInt(cursor.getColumnIndex(DatabaseHelper.KEY_ID)));
+	           artikal.setBarkod(cursor.getInt(cursor.getColumnIndex(DatabaseHelper.KEY_BARKOD)));
+	           artikal.setNaziv(cursor.getString(cursor.getColumnIndex(DatabaseHelper.KEY_NAZIV)));
+	           artikal.setCijena(cursor.getFloat(3));
+	           artikal.setOpis(cursor.getString(cursor.getColumnIndex(DatabaseHelper.KEY_OPIS)));
+	 
+	           // Add to the DB
+	           artikli.add(artikal);
 			cursor.moveToNext();
 		}
 
