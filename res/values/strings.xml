@@ -12,5 +12,7 @@
     <string name="cijena">Cijena:</string>
 	<string name="opis">Opis:</string>
     <string name="btn_dodaj">Dodaj:</string>
+    <string name="KM"> KM</string>
+    
     
 </resources>
