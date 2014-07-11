@@ -27,7 +27,6 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,7 +47,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
      * time.
      */
     ViewPager mViewPager;
-    
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -274,10 +272,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
     public static class ListaSectionFragment extends ListFragment implements ListaFragmentInterface {
     	
-    	private static final int ID_DELETE    = 1;
-        private static final int ID_EDIT   = 2;
-        QuickActionPopup quickActionPopup1 = null;
-    	
     	CustomAdapter adapter;
 
         @Override
@@ -291,40 +285,9 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             //int[] to = { R.id.naziv,R.id.opis,R.id.barkod, R.id.cijena};
             //SimpleAdapter adapter = new SimpleAdapter(getActivity().getBaseContext(), aList, R.layout.list_item, from, to);
             //setListAdapter(adapter);
-        	
-        	prepareQuickButton();
      
             return super.onCreateView(inflater, container, savedInstanceState);
         	
-        }
-        
-        public void prepareQuickButton(){
-        	QuickActionItem editItem    = new QuickActionItem(ID_DELETE, "Uredi", getResources().getDrawable(R.drawable.edit));
-            QuickActionItem deleteItem     = new QuickActionItem(ID_EDIT, "Izbriši", getResources().getDrawable(R.drawable.delete));
-            quickActionPopup1 = new QuickActionPopup(getActivity()
-            		.getApplicationContext(), QuickActionPopup.HORIZONTAL);
-            quickActionPopup1.addActionItem(editItem);
-            quickActionPopup1.addActionItem(deleteItem);
-            
-            quickActionPopup1.setOnActionItemClickListener(new QuickActionPopup.OnActionItemClickListener() {           
-                @Override
-                public void onItemClick(QuickActionPopup source, int pos, int actionId) {               
-
-                    //filtering items by id
-                    if (actionId == ID_EDIT) {
-                        Toast.makeText(getActivity().getApplicationContext(), "Edit Clicked", Toast.LENGTH_SHORT).show();
-                    } else if (actionId == ID_DELETE) {
-                        Toast.makeText(getActivity().getApplicationContext(), "Delete Clicked", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-            
-            quickActionPopup1.setOnDismissListener(new QuickActionPopup.OnDismissListener() {           
-                @Override
-                public void onDismiss() {
-                    Toast.makeText(getActivity().getApplicationContext(), "Dismissed", Toast.LENGTH_SHORT).show();
-                }
-            });
         }
         
         @Override
@@ -349,14 +312,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             adapter = new CustomAdapter(getActivity(), artikli);
             setListAdapter(adapter);
             adapter.notifyDataSetChanged();
-        }
-        
-        @Override
-        public void onListItemClick(ListView l, View v, int position, long id) {
-            // TODO Auto-generated method stub
-            super.onListItemClick(l, v, position, id);
-            quickActionPopup1.show(v);
-            
         }
     }
     
