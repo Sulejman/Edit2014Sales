@@ -9,6 +9,8 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -27,6 +29,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -183,7 +186,29 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             cijena.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
             opis = (EditText)rootView.findViewById(R.id.opis);
 			dodaj.setOnClickListener(this);
-            return rootView;
+			try{
+				String nazivIntent = getActivity().getIntent().getExtras().getString("naziv");
+				String cijenaIntent = getActivity().getIntent().getExtras().getString("cijena");
+				String opisIntent = getActivity().getIntent().getExtras().getString("opis");
+				String barkodIntent = getActivity().getIntent().getExtras().getString("barkod");
+				String idIntent = getActivity().getIntent().getExtras().getString("id");
+				String sourceIntent = getActivity().getIntent().getExtras().getString("source");
+				
+				if(sourceIntent.equals("fromListaSectionFragment")){
+					naziv.setText(nazivIntent);
+					cijena.setText(cijenaIntent);
+					barkod.setText(barkodIntent);
+					opis.setText(opisIntent);
+					dodaj.setText("Izmijeni");
+				}
+				else{
+					dodaj.setText("Dodaj");
+				}
+			}
+			catch(NullPointerException e){}
+			
+			
+			return rootView;
         }
 
 		@Override
@@ -211,7 +236,120 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
     }
     
-    public static class CustomAdapter extends BaseAdapter {
+    public static class ListaSectionFragment extends ListFragment implements ListaFragmentInterface {
+		
+		CustomAdapter adapter;
+	
+	    @Override
+	    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+	            Bundle savedInstanceState) {
+	    	
+	    	//List<HashMap<String,String>> aList = new ArrayList<HashMap<String,String>>();
+	    	
+	
+	        //String[] from = { "naziv","opis","barkod","cijena" };
+	        //int[] to = { R.id.naziv,R.id.opis,R.id.barkod, R.id.cijena};
+	        //SimpleAdapter adapter = new SimpleAdapter(getActivity().getBaseContext(), aList, R.layout.list_item, from, to);
+	        //setListAdapter(adapter);
+	
+	        return super.onCreateView(inflater, container, savedInstanceState);
+	    	
+	    }
+	    
+	    @Override
+	    public void onActivityCreated(Bundle savedInstanceState) {
+	    	super.onActivityCreated(savedInstanceState);
+	    	ArtikalDAO DAO = new ArtikalDAO(getActivity().getApplicationContext());
+	    	DAO.open();
+	    	
+	        List<Artikal> artikli = DAO.getAllArtikal();
+	        adapter = new CustomAdapter(getActivity(), artikli);
+	        setListAdapter(adapter);
+	        adapter.notifyDataSetChanged();
+	    	
+	    }
+	    
+	    @Override
+	    public void fragmentBecameVisible() {
+	    	ArtikalDAO DAO = new ArtikalDAO(getActivity().getApplicationContext());
+	    	DAO.open();
+	    	
+	        List<Artikal> artikli = DAO.getAllArtikal();
+	        adapter = new CustomAdapter(getActivity(), artikli);
+	        setListAdapter(adapter);
+	        adapter.notifyDataSetChanged();
+	    }
+	    
+	    @Override
+	    public void onListItemClick(ListView l, View v, int position, long id) {
+	        // TODO Auto-generated method stub
+	        super.onListItemClick(l, v, position, id);
+	    	
+	    	// Get the X,Y coordinate of the selected item View (for QuickAction to know where to popup)
+	    	int[] xy = new int[2];
+	    	v.getLocationInWindow(xy);
+	    	Log.d("C345Assignment1", "x: "+xy[0]+"; y: "+xy[1]);
+	    	Rect rect = new Rect(xy[0], xy[1], xy[0]+v.getWidth(), xy[1]+v.getHeight());
+	        
+	     // Create QuickAction component (custom Popup for selection: QuickActionWindow.java)
+	    	// The component require the position of the view calling it to know where to place the popup
+	    	final QuickActionWindow qa = new QuickActionWindow(getActivity(), v, rect);
+	    	
+	    	//Uzmi artikal iz adaptera prema poziciji na listi
+	    	final Artikal trenutni = adapter.getArtikal(position);
+	    	
+	    	// Add "View" item and assign the listener on event it's being clicked
+			qa.addItem(getResources().getDrawable(android.R.drawable.ic_menu_mapmode), R.string.qa_map, new OnClickListener() {
+				public void onClick(View v) {
+					Intent i = new Intent(getActivity().getApplicationContext(), DodajSectionFragment.class);
+			    	i.putExtra("naziv", trenutni.getNaziv());
+			    	i.putExtra("cijena", trenutni.getCijena());
+			    	i.putExtra("barkod", trenutni.getBarkod());
+			    	i.putExtra("opis", trenutni.getOpis());
+			    	i.putExtra("id", trenutni.getId());
+			    	i.putExtra("source", "fromListaSectionFragment");
+			    	startActivity(i);
+			    	qa.dismiss();
+				}
+		    });
+			
+			// Add "Feedback" item and assign the listener on event it's being clicked
+			qa.addItem(getResources().getDrawable(android.R.drawable.ic_menu_agenda), R.string.qa_feedback, new OnClickListener() {
+				public void onClick(View v) {
+					/*Intent i = new Intent(getBaseContext(), DetailViewActivity.class);
+			    	i.putExtra("name", p.getName());
+			    	i.putExtra("description", p.getDescription());
+			    	i.putExtra("imageUrl", p.getImageUrl());
+			    	i.putExtra("url", p.getUrl());
+			    	i.putExtra("address", p.getAddress());
+			    	i.putExtra("latitude", p.getLatitude());
+			    	i.putExtra("longitude", p.getLongitude());
+			    	i.putExtra("setTab", "feedback");
+			    	startActivity(i);*/
+			    	qa.dismiss();
+				}
+		    });
+			
+			// Show the QuickAction popup after everything is initialized
+			qa.show();
+	    }
+	}
+
+
+	public static class KasaSectionFragment extends Fragment {
+	
+	    public static final String ARG_SECTION_NUMBER = "section_number";
+	
+	    @Override
+	    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+	            Bundle savedInstanceState) {
+	        View rootView = inflater.inflate(R.layout.fragment_kasa, container, false);
+	        return rootView;
+	    }
+	}
+
+
+	public static class CustomAdapter extends BaseAdapter {
     	
         Context context;
         List<Artikal> artikli;
@@ -230,6 +368,11 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
         @Override
         public Object getItem(int position) {
+
+            return artikli.get(position);
+        }
+        
+        public Artikal getArtikal(int position) {
 
             return artikli.get(position);
         }
@@ -267,63 +410,5 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
         }
 
-    }
-
-
-    public static class ListaSectionFragment extends ListFragment implements ListaFragmentInterface {
-    	
-    	CustomAdapter adapter;
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-        	
-        	//List<HashMap<String,String>> aList = new ArrayList<HashMap<String,String>>();
-        	
-     
-            //String[] from = { "naziv","opis","barkod","cijena" };
-            //int[] to = { R.id.naziv,R.id.opis,R.id.barkod, R.id.cijena};
-            //SimpleAdapter adapter = new SimpleAdapter(getActivity().getBaseContext(), aList, R.layout.list_item, from, to);
-            //setListAdapter(adapter);
-     
-            return super.onCreateView(inflater, container, savedInstanceState);
-        	
-        }
-        
-        @Override
-        public void onActivityCreated(Bundle savedInstanceState) {
-        	super.onActivityCreated(savedInstanceState);
-        	ArtikalDAO DAO = new ArtikalDAO(getActivity().getApplicationContext());
-        	DAO.open();
-        	
-            List<Artikal> artikli = DAO.getAllArtikal();
-            adapter = new CustomAdapter(getActivity(), artikli);
-            setListAdapter(adapter);
-            adapter.notifyDataSetChanged();
-        	
-        }
-        
-        @Override
-        public void fragmentBecameVisible() {
-        	ArtikalDAO DAO = new ArtikalDAO(getActivity().getApplicationContext());
-        	DAO.open();
-        	
-            List<Artikal> artikli = DAO.getAllArtikal();
-            adapter = new CustomAdapter(getActivity(), artikli);
-            setListAdapter(adapter);
-            adapter.notifyDataSetChanged();
-        }
-    }
-    
-    public static class KasaSectionFragment extends Fragment {
-
-        public static final String ARG_SECTION_NUMBER = "section_number";
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_kasa, container, false);
-            return rootView;
-        }
     }
 }

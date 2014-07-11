@@ -12,5 +12,15 @@
     <string name="cijena">Cijena:</string>
 	<string name="opis">Opis:</string>
     <string name="btn_dodaj">Dodaj:</string>
+    <string name="KM"> KM</string>
+    
+    
+    <string name="qa_map">Map</string>
+    <string name="qa_info">Info</string>
+    <string name="qa_feedback">Feedback</string>
+    <string name="qa_wiki">Wiki</string>
+    <string name="qa_delete">Delete</string>
+    
+    <string name="qa_more_info">More Info</string>
     
 </resources>
